@@ -1,8 +1,4 @@
-// #![warn(clippy::all, clippy::pedantic)]
-// mod editor;
-
-// use editor::Editor;
-// use std::io::{self, Read};
+use std::{io::Error, result::Result, time::Duration};
 use crossterm::terminal::{enable_raw_mode, disable_raw_mode};
 use crossterm::event::{self, Event, KeyCode, KeyEvent};
 
@@ -14,38 +10,30 @@ impl Drop for CleanUp {
     }
 }
 
-fn main() {
-   
-    // let editor = Editor::default();
-    // editor.run();
+fn main() -> Result<(), Error> {
+
     let _clean_up = CleanUp;
-    enable_raw_mode().expect("Could not turn on raw mode");
+    enable_raw_mode()?;
     
     loop {
-        if let Event::Key(event) = event::read().expect("Failed to read line") {
-            match event {
-                KeyEvent {
-                    code: KeyCode::Char('q'),
-                    modifiers: event::KeyModifiers::NONE,
-                    ..
-                } => break,
-                _ => {
-                    //todo
+        if event::poll(Duration::from_millis(500))? {
+            if let Event::Key(event) = event::read()? {
+                match event {
+                    KeyEvent {
+                        code: KeyCode::Char('q'),
+                        modifiers: event::KeyModifiers::NONE,
+                        ..
+                    } => break,
+                    _ => {
+                        //todo
+                    }
                 }
-            }
-            println!("{:?}\r", event);
-        };
+                println!("{:?}\r", event);
+            };
+        } else {
+            println!("No input yet\r");
+        }      
     }
-
-    // let mut buf = [0; 1];
-    // while io::stdin().read(&mut buf).expect("Failed to read line") == 1 && buf != [b'q'] {
-    //     let character = buf[0] as char;
-    //     if character.is_control() {
-    //         println!("{}\r", character as u8);
-    //     } else {
-    //         println!("{}\r", character);
-    //     }
-    // }
-    
+    Ok(())
     
 }
