@@ -1,6 +1,10 @@
-use std::{io::Error, result::Result, time::Duration};
+use std::io::Result;
 use crossterm::terminal::{enable_raw_mode, disable_raw_mode};
-use crossterm::event::{self, Event, KeyCode, KeyEvent};
+use editor::Editor;
+
+mod reader;
+mod editor;
+mod output;
 
 struct CleanUp;
 
@@ -10,30 +14,16 @@ impl Drop for CleanUp {
     }
 }
 
-fn main() -> Result<(), Error> {
+fn main() -> Result<()> {
 
     let _clean_up = CleanUp;
     enable_raw_mode()?;
     
-    loop {
-        if event::poll(Duration::from_millis(500))? {
-            if let Event::Key(event) = event::read()? {
-                match event {
-                    KeyEvent {
-                        code: KeyCode::Char('q'),
-                        modifiers: event::KeyModifiers::NONE,
-                        ..
-                    } => break,
-                    _ => {
-                        //todo
-                    }
-                }
-                println!("{:?}\r", event);
-            };
-        } else {
-            println!("No input yet\r");
-        }      
+    let editor = Editor::new(); 
+    while editor.run()? {
+       
     }
+    
     Ok(())
     
 }

@@ -1,41 +1,35 @@
-use crossterm::terminal::{enable_raw_mode, disable_raw_mode};
-use crossterm::event::{read, Event::Key, KeyCode::Char};
+use std::io::Result;
+use crossterm::event::{self, KeyCode, KeyEvent};
+use crate::{reader::Reader, output::Output};
 
 pub struct Editor {
-
-
+    reader: Reader,
+    output: Output,
 }
 
 impl Editor {
-
-    pub fn default() -> Self {
-        Editor {
-
+    pub fn new() -> Self {
+        Self {
+            reader: Reader,
+            output: Output::new(),
         }
     }
-    
-    pub fn run(&self) {
-        enable_raw_mode();
+
+    fn process_keypress(&self) -> Result<bool> {
+        match self.reader.read_key()? {
+            KeyEvent {
+                code: KeyCode::Char('Q'),
+                modifiers: event::KeyModifiers::SHIFT,
+                ..
+            } => return Ok(false),
+            _ => {}
+        }
+        Ok(true)
     }
 
-    fn repl(&self) -> Result<(), std::io::Error> {
-        enable_raw_mode()?;
-        if let Err(err) = self.repl() {
-            panic!("{err:#?}");
-        }
-        print!("Goodbye. \r\n");
-        loop {
-            if let Key(event) = read()? {
-                println!("{event:?} \r");
-                if let Char(c) = event.code {
-                    if c == 'q' {
-                        break;
-                    }
-                }
-            }
-        }
-        disable_raw_mode()?;  
-        Ok(())  
+    pub fn run(&self) -> Result<bool> {
+        self.output.refresh_screen()?;
+        self.process_keypress()
     }
 
 }
