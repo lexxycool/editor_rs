@@ -16,15 +16,16 @@ impl Editor {
     }
 
     fn process_keypress(&self) -> Result<bool> {
-        match self.reader.read_key()? {
+        match (self.reader.read_key())? {  // gets the keypress from the reader struct and matches it 
             KeyEvent {
                 code: KeyCode::Char('Q'),
                 modifiers: event::KeyModifiers::SHIFT,
                 ..
-            } => return Ok(false),
+                                   
+            } => return Ok(false), // when the keycode comes here and it's 'SHIFT + Q', the terminal breaks.
             _ => {}
         }
-        Ok(true)
+       Ok(true)
     }
 
     pub fn run(&self) -> Result<bool> {
