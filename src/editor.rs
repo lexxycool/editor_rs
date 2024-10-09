@@ -1,5 +1,5 @@
 use std::io::Result;
-use crossterm::event::{self, KeyCode, KeyEvent};
+use crossterm::event::{self, KeyCode, KeyEvent, KeyModifiers};
 use crate::{reader::Reader, output::Output};
 
 pub struct Editor {
@@ -15,7 +15,7 @@ impl Editor {
         }
     }
 
-    fn process_keypress(&self) -> Result<bool> {
+    fn process_keypress(&mut self) -> Result<bool> {
         match (self.reader.read_key())? {  // gets the keypress from the reader struct and matches it 
             KeyEvent {
                 code: KeyCode::Char('Q'),
@@ -23,12 +23,17 @@ impl Editor {
                 ..
                                    
             } => return Ok(false), // when the keycode comes here and it's 'SHIFT + Q', the terminal breaks.
+            KeyEvent {
+                code: KeyCode::Char(val @ ('w' | 'a' | 's' | 'd')),
+                modifiers: KeyModifiers::NONE,
+                ..
+            } => self.output.move_cursor(val),
             _ => {}
         }
        Ok(true)
     }
 
-    pub fn run(&self) -> Result<bool> {
+    pub fn run(&mut self) -> Result<bool> {
         self.output.refresh_screen()?;
         self.process_keypress()
     }

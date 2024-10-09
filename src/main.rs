@@ -6,7 +6,8 @@ use output::Output;
 mod reader;
 mod editor;
 mod output;
-mod editorContents;
+mod editor_contents;
+mod cursor_controller;
 
 struct CleanUp;
 
@@ -22,7 +23,7 @@ fn main() -> Result<()> {
     let _clean_up = CleanUp;
     enable_raw_mode()?;
     
-    let editor = Editor::new(); 
+    let mut editor = Editor::new(); 
     while editor.run()? {
        
     }  
