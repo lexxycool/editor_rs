@@ -20,14 +20,31 @@ impl Editor {
             KeyEvent {
                 code: KeyCode::Char('Q'),
                 modifiers: event::KeyModifiers::SHIFT,
-                ..
-                                   
+                ..                                  
             } => return Ok(false), // when the keycode comes here and it's 'SHIFT + Q', the terminal breaks.
             KeyEvent {
-                code: KeyCode::Char(val @ ('w' | 'a' | 's' | 'd')),
+                code: direction @ (
+                      KeyCode::Up 
+                    | KeyCode::Down 
+                    | KeyCode::Left 
+                    | KeyCode::Right
+                    | KeyCode::Home
+                    | KeyCode::End
+                ),
                 modifiers: KeyModifiers::NONE,
                 ..
-            } => self.output.move_cursor(val),
+            } => self.output.move_cursor(direction),
+            KeyEvent {
+                code: val @ (KeyCode::PageUp | KeyCode::PageDown),
+                modifiers: KeyModifiers::NONE,
+                ..
+            } => (0..self.output.get_win_size_1()).for_each(|_| {
+                self.output.move_cursor(if matches!(val, KeyCode::PageUp) {
+                    KeyCode::Up
+                } else {
+                    KeyCode::Down
+                });
+            }),
             _ => {}
         }
        Ok(true)

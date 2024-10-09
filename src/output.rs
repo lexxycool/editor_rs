@@ -1,5 +1,5 @@
 use std::io::{stdout, Result, Write};
-use crossterm::{cursor, execute, queue, terminal::{self, Clear, ClearType}};
+use crossterm::{cursor, event::KeyCode, execute, queue, terminal::{self, Clear, ClearType}};
 
 use crate::editor_contents::EditorContents;
 use crate::cursor_controller::CursorController;
@@ -18,8 +18,12 @@ impl Output {
         Self {
             win_size,
             editor_contents: EditorContents::new(),
-            cursor_controller: CursorController::new(),   
+            cursor_controller: CursorController::new(win_size),   
         }
+    }
+
+    pub fn get_win_size_1(&self) -> usize {
+        self.win_size.1
     }
 
     pub fn clear_screen() -> Result<()> {
@@ -77,7 +81,7 @@ impl Output {
         }
     }
 
-    pub fn move_cursor(&mut self, direction: char) {
+    pub fn move_cursor(&mut self, direction: KeyCode) {
         self.cursor_controller.move_cursor(direction);
     }
 
